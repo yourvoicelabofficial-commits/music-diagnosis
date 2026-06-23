@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音楽講師 可能性診断</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #FFF7FA;
+      color: #333;
+      min-height: 100vh;
+    }
+    .wrap { padding: 1.5rem 1rem 4rem; max-width: 480px; margin: 0 auto; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 2.5rem 0 1.5rem; }
+    .hero-badge {
+      display: inline-block; background: #FBEAF0; color: #993556;
+      font-size: 12px; padding: 5px 16px; border-radius: 20px; margin-bottom: 1.2rem;
+      font-weight: 500; letter-spacing: 0.05em;
+    }
+    .hero h1 {
+      font-size: 22px; font-weight: 700; color: #2D1A23;
+      line-height: 1.5; margin-bottom: 1rem;
+    }
+    .hero p { font-size: 14px; color: #7A5060; line-height: 1.8; }
+    .check-list { display: flex; flex-direction: column; gap: 10px; margin: 1.75rem 0; }
+    .check-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #7A5060; }
+    .check-icon {
+      width: 20px; height: 20px; background: #FBEAF0; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #D4537E; font-size: 11px; flex-shrink: 0;
+    }
+
+    /* Buttons */
+    .start-btn {
+      display: block; background: #D4537E; color: #fff;
+      font-size: 16px; font-weight: 700; padding: 18px;
+      border-radius: 12px; border: none; cursor: pointer;
+      width: 100%; text-align: center; transition: background .2s;
+      margin-top: 1rem; font-family: inherit;
+    }
+    .start-btn:hover { background: #993556; }
+
+    /* Stage */
+    .q-card {
+      background: #fff; border: 1px solid #F4C0D1;
+      border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem;
+    }
+    .q-num { font-size: 12px; color: #D4537E; font-weight: 700; margin-bottom: .5rem; letter-spacing: 0.05em; }
+    .q-text { font-size: 17px; font-weight: 700; color: #2D1A23; line-height: 1.5; }
+    .stage-cards { display: flex; flex-direction: column; gap: 12px; }
+    .stage-card {
+      background: #fff; border: 1.5px solid #F4C0D1;
+      border-radius: 16px; padding: 1.5rem; text-align: center;
+      cursor: pointer; transition: all .2s;
+    }
+    .stage-card:hover { border-color: #D4537E; background: #FBEAF0; }
+    .stage-card.selected { border: 2px solid #D4537E; background: #FBEAF0; }
+    .stage-icon { font-size: 34px; margin-bottom: .75rem; }
+    .stage-title { font-size: 15px; font-weight: 700; color: #2D1A23; margin-bottom: .5rem; }
+    .stage-desc { font-size: 13px; color: #7A5060; line-height: 1.6; }
+
+    /* Progress */
+    .progress-bar-wrap { margin: 1.5rem 0 .75rem; }
+    .progress-label {
+      font-size: 12px; color: #7A5060; margin-bottom: 8px;
+      display: flex; justify-content: space-between; font-weight: 500;
+    }
+    .progress-track { height: 7px; background: #F4C0D1; border-radius: 20px; overflow: hidden; }
+    .progress-fill {
+      height: 100%; background: linear-gradient(90deg, #D4537E, #E87BA0);
+      border-radius: 20px; transition: width .4s ease;
+    }
+
+    /* Choices */
+    .choices { display: flex; flex-direction: column; gap: 10px; }
+    .choice-btn {
+      background: #fff; border: 1.5px solid #F0D0DC;
+      border-radius: 12px; padding: 14px 16px; text-align: left;
+      cursor: pointer; transition: all .2s;
+      display: flex; align-items: flex-start; gap: 12px;
+      font-family: inherit;
+    }
+    .choice-btn:hover { border-color: #D4537E; background: #FBEAF0; }
+    .choice-btn:active { transform: scale(0.98); }
+    .choice-tag {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+      background: #FBEAF0; color: #993556; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .choice-text { font-size: 14px; color: #2D1A23; line-height: 1.6; }
+
+    /* Result */
+    .result-hero { text-align: center; padding: 1.5rem 0 1rem; }
+    .result-icon { font-size: 52px; margin-bottom: 1rem; }
+    .result-type-badge {
+      display: inline-block; background: #FBEAF0; color: #993556;
+      font-size: 13px; padding: 5px 18px; border-radius: 20px;
+      margin-bottom: 1rem; font-weight: 700;
+    }
+    .result-title {
+      font-size: 21px; font-weight: 700; color: #2D1A23;
+      line-height: 1.4; margin-bottom: 1.25rem;
+    }
+    .result-desc {
+      font-size: 14px; color: #7A5060; line-height: 1.9;
+      text-align: left; margin-bottom: 1.5rem;
+      background: #fff; border-radius: 12px; padding: 1rem;
+      border: 1px solid #F4C0D1;
+    }
+    .result-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 1.5rem; }
+    .result-tag {
+      background: #FBEAF0; color: #993556; font-size: 12px;
+      padding: 5px 14px; border-radius: 20px; font-weight: 500;
+    }
+    .strength-box {
+      background: #fff; border-radius: 12px; padding: 1.1rem;
+      margin-bottom: 1rem; border: 1px solid #F4C0D1;
+    }
+    .strength-box h3 { font-size: 12px; color: #D4537E; font-weight: 700; margin-bottom: .5rem; letter-spacing: 0.05em; }
+    .strength-box p { font-size: 13px; color: #7A5060; line-height: 1.8; }
+    .mixed-box {
+      background: #FFF0F5; border-radius: 12px; padding: 1rem;
+      margin-bottom: 1rem; border: 1px solid #F4C0D1;
+    }
+    .mixed-box p { font-size: 13px; color: #7A5060; line-height: 1.8; }
+    .possibility-box {
+      border-left: 4px solid #D4537E; padding: .85rem 1rem;
+      margin-bottom: 1.75rem; background: #FBEAF0;
+      border-radius: 0 12px 12px 0;
+    }
+    .possibility-box p { font-size: 14px; color: #72243E; line-height: 1.8; font-weight: 700; }
+
+    /* CTA */
+    .cta-box {
+      background: #EAF3DE; border: 1px solid #C0DD97;
+      border-radius: 16px; padding: 1.75rem 1.5rem; text-align: center;
+    }
+    .cta-box h3 { font-size: 17px; font-weight: 700; color: #27500A; margin-bottom: .6rem; }
+    .cta-box p { font-size: 13px; color: #3B6D11; margin-bottom: 1.5rem; line-height: 1.8; }
+    .cta-btn {
+      display: block; background: #2E7D1A; color: #fff;
+      font-size: 16px; font-weight: 700; padding: 18px;
+      border-radius: 12px; border: none; cursor: pointer;
+      width: 100%; text-decoration: none; text-align: center;
+      transition: background .2s; font-family: inherit;
+    }
+    .cta-btn:hover { background: #1D5710; }
+    .restart-btn {
+      background: none; border: none; color: #B09BA5;
+      font-size: 13px; cursor: pointer; text-decoration: underline;
+      margin-top: 1.5rem; display: block; text-align: center;
+      font-family: inherit;
+    }
+
+    /* Utils */
+    .hidden { display: none; }
+    .fade-in { animation: fadeIn .35s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div id="screen-hero" class="fade-in">
+    <div class="hero">
+      <div class="hero-badge">無料診断 ✦ 約3分</div>
+      <h1>あなたの「音楽講師としての<br>可能性」を診断します</h1>
+      <p>10の質問に答えるだけで、あなたの隠れた強みと<br>次のステージへのヒントがわかります。</p>
+    </div>
+    <div class="check-list">
+      <div class="check-item"><div class="check-icon">✓</div>楽器経験がなくても大丈夫</div>
+      <div class="check-item"><div class="check-icon">✓</div>あなただけのタイプ診断結果</div>
+      <div class="check-item"><div class="check-icon">✓</div>診断後に専門家への相談窓口あり</div>
+    </div>
+    <button class="start-btn" onclick="showStageSelect()">診断をはじめる →</button>
+  </div>
+
+  <!-- STAGE SELECT -->
+  <div id="screen-stage" class="hidden">
+    <div class="q-card">
+      <div class="q-num">最初の質問</div>
+      <div class="q-text">あなたの現在をお聞かせください</div>
+    </div>
+    <div class="stage-cards">
+      <div class="stage-card" onclick="selectStage('A')" id="stage-A">
+        <div class="stage-icon">🎹</div>
+        <div class="stage-title">すでに音楽教室・レッスンを運営している</div>
+        <div class="stage-desc">ピアノや楽器を教えているが、もっと可能性を広げたいと感じている</div>
+      </div>
+      <div class="stage-card" onclick="selectStage('B')" id="stage-B">
+        <div class="stage-icon">🌱</div>
+        <div class="stage-title">これから音楽を仕事・副業にしたい</div>
+        <div class="stage-desc">音楽の経験はあるが、どう仕事にすればいいかまだわからない</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div id="screen-questions" class="hidden">
+    <div class="progress-bar-wrap">
+      <div class="progress-label">
+        <span id="progress-text">質問 1 / 10</span>
+        <span id="progress-pct">10%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:10%"></div></div>
+    </div>
+    <div id="q-area"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="hidden">
+    <div class="result-hero">
+      <div class="result-icon" id="result-icon"></div>
+      <div class="result-type-badge" id="result-badge"></div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-desc" id="result-desc"></div>
+      <div class="result-tags" id="result-tags"></div>
+      <div class="strength-box">
+        <h3>あなたの隠れた強み</h3>
+        <p id="result-strength"></p>
+      </div>
+      <div id="result-mixed-wrap" class="hidden">
+        <div class="mixed-box"><p id="result-mixed"></p></div>
+      </div>
+      <div class="possibility-box">
+        <p id="result-possibility"></p>
+      </div>
+    </div>
+    <div class="cta-box">
+      <h3>その可能性、一緒に確かめてみませんか？</h3>
+      <p>あなたの診断結果をもとに、<br>専門家が可能性をさらに深掘りします。<br>まずは気軽にLINEでお話しましょう。</p>
+      <a class="cta-btn" href="https://lin.ee/sKZGpj8" target="_blank">無料で専門家に相談してみる</a>
+    </div>
+    <button class="restart-btn" onclick="restart()">最初からやり直す</button>
+  </div>
+
+</div>
+
+<script>
+const questionsA=[
+  {q:"あなたの本音に近いのはどっち？",choices:["練習の成果をしっかり確認し、技術向上を第一に厳しくも丁寧に指導したい。","技術だけでなく、今日の出来事や音楽の趣味など、生徒との会話を楽しみながら進めたい。"]},
+  {q:"生徒の退会や、急な休会が重なった時、あなたの正直な気持ちは？",choices:["自分の指導力が足りなかったのかと、深く落ち込んだり自分を責めたりすることが多い。","縁だし仕方がないと割り切りつつも、「もっと別のやり方があったかな？」と次への改善策を冷静に考える。"]},
+  {q:"レッスンの準備において、あなたが大切にしていることは？",choices:["楽譜の分析や指導計画の作成など、技術的な準備を完璧に！","楽しませるための工夫やアイデアを考えること。"]},
+  {q:"今の自分に足りないものがあると感じるとしたら？",choices:["ピアノの指導力をさらに深めるための、専門的な知識やスキル。","ピアノ以外の楽器やボイトレなど、指導の幅を広げるための新しいカード。"]},
+  {q:"教室の収益アップについて、どんなイメージを持っていますか？",choices:["生徒数（枠）を増やすことで、積み上げていきたい。","新しいコースやイベントなど、今の枠のまま「付加価値」で単価を上げていきたい。"]},
+  {q:"生徒が「練習してこなかった」時、どうする？",choices:["練習しなくても弾けるような、基礎的な練習方法をその場で一緒に徹底する。","一旦横に置いて、その曲の新しい魅力を発見するような楽しい時間に切り替える。"]},
+  {q:"新規生徒を募集する時、どんなアピールが一番しっくりきますか？",choices:["「どんな技術が身につくか」「どんな実績があるか」という信頼性や成果。","「どんな楽しい体験ができるか」「どんな温かい場所か」という雰囲気や世界観。"]},
+  {q:"理想とする教室の空気感は？",choices:["集中して音楽に向き合い、成果を積み上げていく「学びの場」。","音楽を共通言語にして、生徒と先生が一緒に夢中になれる「サードプレイス」。"]},
+  {q:"新しい指導法やビジネスモデル（コース増設など）について、どう思いますか？",choices:["興味はあるが、今の生徒への指導が疎かにならないか少し不安。","変化は楽しみ。自分の教室がどう変わるのか試してみたい。"]},
+  {q:"あなたが講師として、一番のやりがいを感じる瞬間は？",choices:["生徒が難しい曲を弾けるようになったり、コンクールで結果を出したりした時。","生徒が音楽を大好きになり、教室に来ることを楽しみにしてくれていると感じた時。"]}
+];
+
+const questionsB=[
+  {q:"音楽を聴くとき、どんな風に楽しんでいることが多いですか？",choices:["メロディや歌詞の「良さ」を直感的に感じて浸る","楽器の音色や構成を無意識に分析しながら聴いてしまう","あまり深く考えず、BGMとしてなんとなく流している"]},
+  {q:"「趣味を仕事にする」という考えについて、正直どう感じますか？",choices:["夢があって素敵だが、自分には無縁の世界だと思ってしまう","好きでいられなくなりそうで、少し怖い","もし実現できるなら、理想の生き方だと思う"]},
+  {q:"誰かに何かを教えたり、説明したりする時、どんな感覚になりますか？",choices:["相手が理解してくれた時、自分まで嬉しくなる","自分が知っていることを話すのは好きだが、教えるのは難しそう","説明するのが苦手で、自分の中に留めておくことが多い"]},
+  {q:"今のあなたの「音楽の楽しみ方」は？",choices:["音楽の奥深さや、細かな表現が好き","聴くだけで元気になるようなパワーの源","楽器の仕組み、音の作り方などの技術的な研究"]},
+  {q:"普段、音楽について誰かと話すことはありますか？",choices:["ある。音楽好きな友達もいる","私は好きだが、あまり話す人がいない","あまり話題として出てくることはない"]},
+  {q:"新しいことを始める時、一番ネックになるのは何だと思いますか？",choices:["自分の力で最後までやり遂げられるかという不安","そもそも、何から手をつけていいか分からない状態","他の人に比べて、自分には突出した才能がない気がすること"]},
+  {q:"難しいことを習得する時、自分はどんなタイプだと思いますか？",choices:["納得いくまで、ひとりでコツコツ突き詰める","誰かにヒントをもらって、少しずつ進むのが好き","感覚的に捉えて、とにかく実践しながら覚える"]},
+  {q:"人から「詳しいね」「教えて！」と言われた経験はありますか？",choices:["ある。教えるのは嫌いじゃないかもしれない","あまりない。自分だけで完結することが多い","特になし。自分に人に教えられることはないと思う"]},
+  {q:"未経験から何か新しいスキルを身につけるということに、ワクワクや興味を感じますか？",choices:["はい、新しい自分に出会えそうでワクワクする","興味はあるけれど、少し慎重になってしまう","現状維持で満足しているため、特に必要を感じない"]},
+  {q:"自分の音楽スキルが、誰かの生活を少しだけ明るくできるとしたら、どんな風に感じますか？",choices:["すごく嬉しいし、やりがいを感じる","自分にそんな影響力があるなんて、信じられない","趣味の範囲でなら、ぜひやってみたい"]}
+];
+
+const typesA=[
+  {label:"技術職人型・信頼の指導者",icon:"🎼",desc:"「ちゃんと教えたい」という誠実さが、あなたのレッスンの核心にあります。生徒の成長を自分のことのように喜び、技術と向き合い続けるその姿勢は、多くの講師が持てない本物の強みです。その「深さ」の上に、新しい何かが加わった時——あなたの教室は、もうひとつ違う顔を見せるはずです。",tags:["技術への誠実さ","信頼構築","深い指導力"],strength:"「妥協しない姿勢」は、生徒に安心感と確かな手応えを与えます。それはどんな宣伝よりも強い集客力になります。",possibility:"その可能性をさらに広げるためには、今の「深さ」に何を加えればいいのか——一緒に考えてみませんか？",mixed:null},
+  {label:"体験創造型・場づくりの名手",icon:"🌟",desc:"あなたのレッスンには、技術の伝達を超えた「体験」があります。生徒が音楽を好きになる瞬間を生み出せるあなたは、教室という場そのものに価値を宿している。その「温かさ」と「楽しさ」は、簡単には真似できないあなただけのブランドです。",tags:["場づくり","体験設計","エンゲージメント"],strength:"「また来たい」と思わせる空気をつくれる人は、そう多くありません。それがあなたの最大の武器です。",possibility:"その可能性を実現していくためには、この「体験価値」をどう形にして届けるか——一緒に整理してみませんか？",mixed:null},
+  {label:"バランス型・進化する講師",icon:"✨",desc:"技術への誠実さと、生徒との関係を大切にする温かさ——その両方を持っているあなたは、バランス型の講師です。どちらかに偏っていないからこそ、さまざまな生徒のニーズに応えられる可能性を秘めています。今は「どちらも中途半端」に見えても、それは実は「どちらにも化ける力がある」ということです。",tags:["バランス感覚","柔軟性","適応力"],strength:"「どちらの良さも知っている」からこそ、生徒に合わせて自在に動ける。それが今のあなたの最大の可能性です。",possibility:"その可能性をさらに広げるためには、この「両面」をどう活かすか——専門家と一緒に整理してみませんか？",mixed:"技術派と体験派、どちらの要素も持つあなたは、まだ自分の「核」を探している途中かもしれません。それは迷いではなく、可能性の広さのあらわれです。"}
+];
+
+const typesB=[
+  {label:"感性型・共感の伝え手",icon:"🎵",desc:"音楽を感じる力と、人の気持ちに寄り添う感受性があなたの核心にあります。「誰かが理解してくれた瞬間の喜び」を知っているあなたは、伝えることへの本能的な才能を持っています。まだそれを「仕事」として捉えていないだけで、あなたの中にはすでに大切なものが育っています。",tags:["共感力","感受性","伝える才能"],strength:"「感じたことを誰かと分かち合いたい」という気持ちこそ、人を動かす発信力の原点です。",possibility:"その可能性を実現していくためには、あなたの感性をどう形にするか——一緒に考えてみませんか？",mixed:null},
+  {label:"内省型・静かな探求者",icon:"🔍",desc:"慎重に、丁寧に、自分のペースで物事を深めていくあなた。「まだ自分には無理かも」という思いの裏側には、真剣に向き合っているからこその誠実さがあります。その慎重さは弱さではなく、着実に歩める力の証です。",tags:["誠実さ","深く考える力","着実さ"],strength:"「本当に理解してから動きたい」という姿勢は、信頼される人だけが持てる強さです。",possibility:"その可能性をさらに広げるためには、最初の一歩をどう踏み出すか——あなたに合った方法があります。",mixed:null},
+  {label:"現実型・可能性の開拓者",icon:"🌿",desc:"「今の自分」をしっかり見つめながら、それでも新しい何かを探しているあなた。音楽との関わり方はまだ模索中かもしれませんが、それは可能性が閉じているのではなく、まだ開いていないだけです。正しい入り口を見つければ、景色はガラッと変わります。",tags:["現実的な視点","探求心","開拓力"],strength:"「今の自分を知っている」ことは、次のステージへ進む上で、実は最大の強みになります。",possibility:"その可能性をさらに広げるためには、どんな入り口が合っているのか——一緒に探していきましょう。",mixed:null}
+];
+
+let stage=null,currentQ=0,answers=[],questions=[];
+
+function showStageSelect(){
+  document.getElementById('screen-hero').classList.add('hidden');
+  const s=document.getElementById('screen-stage');
+  s.classList.remove('hidden'); s.classList.add('fade-in');
+}
+
+function selectStage(s){
+  stage=s;
+  document.getElementById('stage-A').classList.remove('selected');
+  document.getElementById('stage-B').classList.remove('selected');
+  document.getElementById('stage-'+s).classList.add('selected');
+  questions=s==='A'?questionsA:questionsB;
+  answers=[];currentQ=0;
+  setTimeout(()=>{
+    document.getElementById('screen-stage').classList.add('hidden');
+    const sq=document.getElementById('screen-questions');
+    sq.classList.remove('hidden'); sq.classList.add('fade-in');
+    renderQ();
+  },300);
+}
+
+function renderQ(){
+  const q=questions[currentQ],total=questions.length;
+  const pct=Math.round(((currentQ+1)/total)*100);
+  document.getElementById('progress-text').textContent='質問 '+(currentQ+1)+' / '+total;
+  document.getElementById('progress-pct').textContent=pct+'%';
+  document.getElementById('progress-fill').style.width=pct+'%';
+  const area=document.getElementById('q-area');
+  area.innerHTML='';
+  const card=document.createElement('div');
+  card.className='q-card fade-in';
+  card.innerHTML='<div class="q-num">質問 '+(currentQ+1)+'</div><div class="q-text">'+q.q+'</div>';
+  area.appendChild(card);
+  const choices=document.createElement('div');
+  choices.className='choices fade-in';
+  const labels=q.choices.length===2?['A','B']:['A','B','C'];
+  q.choices.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.innerHTML='<div class="choice-tag">'+labels[i]+'</div><div class="choice-text">'+c+'</div>';
+    btn.onclick=()=>selectAnswer(i);
+    choices.appendChild(btn);
+  });
+  area.appendChild(choices);
+}
+
+function selectAnswer(i){
+  answers.push(i);
+  if(currentQ<questions.length-1){currentQ++;setTimeout(renderQ,250);}
+  else showResult();
+}
+
+function showResult(){
+  document.getElementById('screen-questions').classList.add('hidden');
+  let t;
+  if(stage==='A'){
+    const countA=answers.filter(a=>a===0).length;
+    const countB=answers.filter(a=>a===1).length;
+    if(Math.abs(countA-countB)<=2) t=typesA[2];
+    else if(countA>countB) t=typesA[0];
+    else t=typesA[1];
+  } else {
+    const counts=[0,0,0];
+    answers.forEach(a=>counts[a]++);
+    t=typesB[counts.indexOf(Math.max(...counts))];
+  }
+  document.getElementById('result-icon').textContent=t.icon;
+  document.getElementById('result-badge').textContent=t.label;
+  document.getElementById('result-title').textContent='あなたは「'+t.label+'」です';
+  document.getElementById('result-desc').textContent=t.desc;
+  document.getElementById('result-strength').textContent=t.strength;
+  document.getElementById('result-possibility').textContent=t.possibility;
+  const mw=document.getElementById('result-mixed-wrap');
+  if(t.mixed){ document.getElementById('result-mixed').textContent=t.mixed; mw.classList.remove('hidden'); }
+  else { mw.classList.add('hidden'); }
+  const tagsEl=document.getElementById('result-tags');
+  tagsEl.innerHTML='';
+  t.tags.forEach(tag=>{const s=document.createElement('span');s.className='result-tag';s.textContent='# '+tag;tagsEl.appendChild(s);});
+  const res=document.getElementById('screen-result');
+  res.classList.remove('hidden'); res.classList.add('fade-in');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restart(){
+  stage=null;currentQ=0;answers=[];
+  document.getElementById('screen-result').classList.add('hidden');
+  document.getElementById('result-mixed-wrap').classList.add('hidden');
+  const hero=document.getElementById('screen-hero');
+  hero.classList.remove('hidden'); hero.classList.add('fade-in');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
